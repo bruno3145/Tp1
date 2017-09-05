@@ -1,11 +1,11 @@
 #include <GL/glew.h>
 #include<stdio.h>
 #include <GL/freeglut.h>
-int x=0, y=0, d=0;
+int x=0, y=0, ww=0, dd=0, aa=0, ss=0;
 
 void square(int k, int l){
 
-	glBegin(GL_POLYGON);
+	glBegin(GL_TRIANGLE_STRIP);
         glVertex3f(k, l, 0);
         glVertex3f(k+10, l, 0);
         glVertex3f(k+10, l+10, 0);
@@ -13,16 +13,36 @@ void square(int k, int l){
         glEnd();
 }
 
-
-
-void desenhaCena(){
+void reBuffer(){
+	if(x>100){
+		x=0;
+	}
+	if(y>100){
+		y=0;
+	}
+	if(y<0){
+		y+=100;
+	}
+	if(x<0){
+		x+=100;
+	}
+	 if(ww==1){
+		y++;
+	 }
+	 if(ss==1){
+		y--;
+	 }
+	 if(aa==1){
+		x--;
+	 }
+	if(dd==1){
+		x++;
+	}
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(0, 0, 1);
 	square(x,y);
 	glutSwapBuffers();
 }
-
-
 
 // Inicia algumas variáveis de estado
 void inicializa(void)
@@ -52,23 +72,47 @@ void teclado(unsigned char key)
          exit(0);
          break;
       case 'w':
-	y++;
+	aa=0;
+	ss=0;
+	dd=0;
+	if(ww==1){
+		ww=0;
+	}
+	else
+	ww=1;
 	glutPostRedisplay();
 	break;
       case 's':
-	y--;
+	aa=0;
+	ww=0;
+	dd=0;
+	if(ss==1){
+		ss=0;
+	}
+	else
+	ss=1;
 	glutPostRedisplay();
 	break;
       case 'd':
-	while(d<10){
-	x++;
-	glutPostRedisplay();
-	d++;
+	aa=0;
+	ss=0;
+	ww=0;
+	if(dd==1){
+		dd=0;
 	}
-	d=0;
+	else
+	dd=1;
+	glutPostRedisplay();
 	break;
       case 'a':
-	x--;
+	ww=0;
+	ss=0;
+	dd=0;
+	if(aa==1){
+		aa=0;
+	}
+	else
+	aa=1;
 	glutPostRedisplay();
 	break;
       default:
@@ -93,12 +137,13 @@ int main(int argc, char **argv)
     glutInitWindowPosition(100, 100);
 
     // Abre a janela
-    glutCreateWindow("Bruno Henrique Amaral Fonseca");
+    glutCreateWindow("tp1");
 
     // Registra callbacks para alguns eventos
-    glutDisplayFunc(desenhaCena);
+    glutDisplayFunc(reBuffer);
     glutReshapeFunc(redimensiona);
     glutKeyboardFunc(teclado);
+    glutIdleFunc(glutPostRedisplay);
     inicializa();
 
     // Entra em loop e nunca sai
