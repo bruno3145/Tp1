@@ -1,38 +1,14 @@
-//#include "funcoes.h"
 #include <GL/glew.h>
 #include<stdio.h>
 #include <GL/freeglut.h>
+#include "characterMoves.h"
 
 #define LARGURA_DO_MUNDO 160
 #define ALTURA_DO_MUNDO 90
 
-int axisx=0, axisy=0,up=0,down=0,left=0,right=0;
-void movimenta(){
+float axisx=0, axisy=0;
+int up=0,down=0,left=0,right=0;
 
-	if(up==1){
-		glColor3f(0, 0, 1);
-	 axisy++;
-	}
-	if(down==1){
-		glColor3f(0, 1, 1);
-	 axisy--;
-	}
-	if(left==1){
-		glColor3f(1, 0, 1);
-	 axisx--;
-	}
- if(right==1){
-				glColor3f(1, 0, 0);
-	 axisx++;
- }
-}
-
-void resetaMovimento(){
-	up=0;
-	down=0;
-	left=0;
-	right=0;
-}
 /*void worldShape(){
 
 	glColor3f(0, .5, 0);  // verde escuro
@@ -40,19 +16,9 @@ void resetaMovimento(){
 	desenhaRetangulo(1, 1, LARGURA_DO_MUNDO-2, ALTURA_DO_MUNDO-2);
 }*/
 
-void characterShape(int k, int l){
-
-	glBegin(GL_POLYGON);
-        glVertex3f(k, l, 0);
-        glVertex3f(k+10, l, 0);
-        glVertex3f(k+10, l+10, 0);
-        glVertex3f(k, l+10, 0);
-        glEnd();
-}
-
 void reBuffer(){
 	glClear(GL_COLOR_BUFFER_BIT);
-	movimenta();
+	movimenta(up,down,left,right,&axisx,&axisy);
 	characterShape(axisx,axisy);
 	glutSwapBuffers();
 }
@@ -110,22 +76,22 @@ void teclado(unsigned char key, int A, int B){
 				exit(0);
 				break;
 			case 'w':
-				resetaMovimento();
+				resetaMovimento(&up,&down,&left,&right);
 				up=1;
 				glutPostRedisplay();
 				break;
 			case 's':
-				resetaMovimento();
+				resetaMovimento(&up,&down,&left,&right);
 				down=1;
 				glutPostRedisplay();
 				break;
 			case 'd':
-				resetaMovimento();
+				resetaMovimento(&up,&down,&left,&right);
 				right=1;
 				glutPostRedisplay();
 				break;
 			case 'a':
-				resetaMovimento();
+				resetaMovimento(&up,&down,&left,&right);
 				left=1;
 				glutPostRedisplay();
 				break;
