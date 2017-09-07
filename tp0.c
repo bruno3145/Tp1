@@ -9,12 +9,21 @@
 float axisx=0, axisy=0;
 int up=0,down=0,left=0,right=0;
 
+struct ponto {
+    float x, y;
+};
+struct ponto posicaoMouse;
+
 /*void worldShape(){
 
 	glColor3f(0, .5, 0);  // verde escuro
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	desenhaRetangulo(1, 1, LARGURA_DO_MUNDO-2, ALTURA_DO_MUNDO-2);
 }*/
+void movimentoMouse(int x, int y) {
+    posicaoMouse.x = x;
+    posicaoMouse.y = y;
+}
 
 void reBuffer(){
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -124,6 +133,7 @@ int main(int argc, char **argv){
 	glutReshapeFunc(redimensiona);
 	glutKeyboardFunc(teclado);
 	glutIdleFunc(glutPostRedisplay);
+  glutPassiveMotionFunc(movimentoMouse);
 	inicializa();
 
 	// Entra em loop e nunca sai
