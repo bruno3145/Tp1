@@ -1,26 +1,20 @@
-#include "characterMoves.h"
 #include <GL/glew.h>
-#include<stdio.h>
 #include <GL/freeglut.h>
-
+#include "characterMoves.h"
 
 void movimenta(int cima, int baixo, int esquerda, int direita, float *x, float *y){
 
 	if(cima==1){
-		glColor3f(0, 0, 1);
-	*y+=0.5;
+	*y+=1;
 	}
 	if(baixo==1){
-		glColor3f(0, 1, 1);
-	 *y-=0.5;
+	 *y-=1;
 	}
 	if(esquerda==1){
-		glColor3f(1, 0, 1);
-	 *x-=0.5;
+	 *x-=1;
 	}
  if(direita==1){
-				glColor3f(1, 0, 0);
-	 *x+=0.5;
+	 *x+=1;
  }
 }
 
@@ -30,13 +24,20 @@ void resetaMovimento(int *up, int *down, int *left, int *right){
 	*left=0;
 	*right=0;
 }
+void characterShape(){
 
-void characterShape(int k, int l){
-
-	glBegin(GL_TRIANGLE_STRIP);
-        glVertex3f(k, l, 0);
-        glVertex3f(k+10, l, 0);
-        glVertex3f(k+10, l+10, 0);
-        glVertex3f(k, l+10, 0);
-        glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(1,1,1);
+			glVertex2f(0,-20);
+			glVertex2f(-20,0);
+			glVertex2f(0,20);
+			glColor3f(1,0,0);
+			glVertex2f(20,0);
+	glEnd();
+}
+void corrigeMouse(int x, int y,int* tMouseX, int* tMouseY, int gloHght){
+/*trueMouseX=x*((float)LARGURA_DO_MUNDO/globalWidth);
+  trueMouseY=(globalHeight-y)*((float)ALTURA_DO_MUNDO/globalHeight);*/
+  *tMouseX = x;
+  *tMouseY = (gloHght-y);
 }

@@ -1,0 +1,4 @@
+gcc characterMoves.c -c  -lGL -lGLEW -lglut -lm
+
+gcc characterMoves.o main.c -o tp0.out -lGL -lGLEW -lglut -lm
+
