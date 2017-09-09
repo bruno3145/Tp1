@@ -11,12 +11,16 @@ float velocidadeTangencial = 0.5;
 int trueMouseX, trueMouseY;
 #define LARGURA_DO_MUNDO 800
 #define ALTURA_DO_MUNDO 600
+int colidiu =0;
 int globalWidth=LARGURA_DO_MUNDO, globalHeight= ALTURA_DO_MUNDO;
 #define radianoParaGraus(radianos) (radianos * (180.0 / M_PI))
 #define grausParaRadianos(graus) ((graus * M_PI) / 180.0)
+const int raioEnemy =10;
+const int raioPlayer=10;
 
-float axisx=0, axisy=0;
-int up=0,down=0,left=0,right=0, r,enemieX,enemieY,enemieCount=0,level=20;
+
+float axisx=0, axisy=0,enemyx=0, enemyy=0;
+int up=0,down=0,left=0,right=0, r,enemieX,enemieY,enemieCount=0,level=5;
 
 struct ponto {
    int x, y;
@@ -48,15 +52,28 @@ void createEnemie(){
 	enemieVector[enemieCount].y = r;
 }
 
+void colisao (int i) {
+  int distancia = sqrt(((axisx/2 - enemieVector[i].x/2) * (axisx/2 - enemieVector[i].x/2)) + ((axisy/2 - enemieVector[i].y/2) * (axisy/2 - enemieVector[i].y/2)));
+  if (distancia <= raioPlayer + raioEnemy){
+    colidiu= 1;
+  }
+  else
+    colidiu = 0;
+}
+
 void drawEnemie(struct Enemie enemie){
-  glColor3f(0, 1, 0);
-	glBegin(GL_POLYGON);
-        	glVertex2f(enemie.x,enemie.y);
-					glColor3f(1,0,1);
-        	glVertex2f(enemie.x+30,enemie.y);
-        	glVertex2f(enemie.x+30,enemie.y+30);
-        	glVertex2f(enemie.x,enemie.y+30);
+	  glColor3f(0,1,0);
+  /*  glPushMatrix();
+    glTranslatef(enemyx, enemyy, 0);
+    glRotatef(atan2(axisy-(enemie.y+15),axisx-(enemie.x-15))*180/M_PI, 0, 0, 1);*/
+  	glBegin(GL_POLYGON);
+        	glVertex2f(enemie.x-15,enemie.y+15);
+          glColor3f(1,0,1);
+        	glVertex2f(enemie.x-15,enemie.y-15);
+        	glVertex2f(enemie.x+15,enemie.y-15);
+          glVertex2f(enemie.x+15,enemie.y+15);
   glEnd();
+  //glPopMatrix();
 }
 
 void enemyFollows(int i){
@@ -79,16 +96,12 @@ void desenhaCena(void){
     glColor3f(.5, .5, 1);
 	  movimenta(up,down,left,right,&axisx,&axisy);
     glPushMatrix();
-        // Move o sistema de coordenadas para a posição onde deseja-se desenhar
+        // Faz o objeto se orientar pelo mouse
         glTranslatef(x, y, 0);
-        // Rotaciona o sistema de coordenadas para o ângulo de orientação,
-        // no eixo Z (como estamos em 2D, só faz sentido rotacionar em 'z')
-        // O ângulo esperado pela glRotate deve estar em graus
-        // Os argumentos "0, 0, 1" indicam que a rotação é no eixo Z
         glRotatef(atan2(trueMouseY-axisy,trueMouseX-axisx)*180/M_PI, 0, 0, 1);
 
         // Desenha o personagem principal
-        characterShape(&globalWidth,&globalHeight);
+        characterShape(&colidiu);
     glPopMatrix();
         if(enemieCount < level){
             randomPosition(&enemieX,&enemieY);
@@ -127,51 +140,19 @@ void redimensiona(int w, int h){
   glLoadIdentity();
 }
 
-/*void redimensiona(int width, int height) {            //COM ASPECTRATIO IGUAL DO EXEMPLO
-    globalWidth = width;
-    globalHeight = height;
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0,LARGURA_DO_MUNDO, 0, ALTURA_DO_MUNDO, -1, 1);
-    float razaoAspectoJanela = ((float)width)/height;
-    float razaoAspectoMundo = ((float)LARGURA_DO_MUNDO)/ ALTURA_DO_MUNDO;
-    // se a janela está menos larga do que o mundo (16:9)...
-    if (razaoAspectoJanela < razaoAspectoMundo) {
-        // vamos colocar barras verticais (acima e abaixo)
-        float hViewport = width / razaoAspectoMundo;
-        float yViewport = (height - hViewport)/2;
-        glViewport(0, yViewport, width, hViewport);
-    }
-    // se a janela está mais larga (achatada) do que o mundo (16:9)...
-    else if (razaoAspectoJanela > razaoAspectoMundo) {
-        // vamos colocar barras horizontais (esquerda e direita)
-        float wViewport = ((float)height) * razaoAspectoMundo;
-        float xViewport = (width - wViewport)/2;
-        glViewport(xViewport, 0, wViewport, height);
-    } else {
-        glViewport(0, 0, width, height);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}*/
-
 void atualiza(int idx) {
-    // O ângulo esperado pelas funções "cos" e "sin" da math.h devem
-    // estar em radianos
-    for(int i=0;i<enemieCount;i++){
-      enemyFollows(i);
-    }
 
-    GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
+GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
+
+  for(int i=0;i<enemieCount;i++){ //LOOP PARA CONFIGURAR OS INIMIGOS
+    colisao(i);
+    enemyFollows(i);
+    //enemyx = (enemieVector[i].x-15) + cos(orientacaoEmRadianos); //INIMIGO SE ORIENTANDO PELO JOGADOR
+    //enemyy = (enemieVector[i].y+15) + sin(orientacaoEmRadianos);
+  }
+
     x = axisx+ cos(orientacaoEmRadianos);
     y = axisy+ sin(orientacaoEmRadianos);
-
-/*    if(posicaoMouse.x<axisx || posicaoMouse.y>axisy){
-      velocidadeAngular-=0.5;
-    }
-    if(posicaoMouse.x>axisx || posicaoMouse.y<axisy){
-      velocidadeAngular+=0.5;
-    }*/
 
     orientacaoEmGraus += velocidadeAngular;
 
@@ -182,6 +163,20 @@ void atualiza(int idx) {
 // Callback de evento de teclado
 void teclado(unsigned char key, int x, int y)
 {
+  switch(key){
+    case 'W':
+      key='w';
+      break;
+    case 'S':
+      key='s';
+      break;
+    case 'A':
+      key='a';
+      break;
+    case 'D':
+      key='d';
+      break;
+  }
     switch(key)
     {
         // Tecla ESC
