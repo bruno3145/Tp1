@@ -9,24 +9,68 @@ GLfloat velocidadeAngular = 0.05;
 GLfloat x = 0, y = 0;
 float velocidadeTangencial = 0.5;
 int trueMouseX, trueMouseY;
-#define LARGURA_DO_MUNDO 300
-#define ALTURA_DO_MUNDO 230
+#define LARGURA_DO_MUNDO 800
+#define ALTURA_DO_MUNDO 600
 int globalWidth=LARGURA_DO_MUNDO, globalHeight= ALTURA_DO_MUNDO;
 #define radianoParaGraus(radianos) (radianos * (180.0 / M_PI))
 #define grausParaRadianos(graus) ((graus * M_PI) / 180.0)
 
 float axisx=0, axisy=0;
-int up=0,down=0,left=0,right=0;
+int up=0,down=0,left=0,right=0, r,enemieX,enemieY,enemieCount=0,level=20;
+
 struct ponto {
    int x, y;
 };
 
+struct Enemie{
+	int x;
+	int y;
+};
+
+struct Enemie enemieVector[100];
 struct ponto posicaoMouse;
+
+void randomPosition(int* x, int* y){
+	r = (rand()%21-10);
+	*x = r;
+	r = (rand()%21-10);
+	*y = r;
+}
 
 void movimentoMouse(int x, int y) {     //callback do mouse
     posicaoMouse.x = x;
     posicaoMouse.y = y;
 }
+void createEnemie(){
+	r = globalWidth+(rand()%3300-2600);
+	enemieVector[enemieCount].x = r;
+	r = globalHeight+(rand()%3300-2600);
+	enemieVector[enemieCount].y = r;
+}
+
+void drawEnemie(struct Enemie enemie){
+  glColor3f(0, 1, 0);
+	glBegin(GL_POLYGON);
+        	glVertex2f(enemie.x,enemie.y);
+					glColor3f(1,0,1);
+        	glVertex2f(enemie.x+30,enemie.y);
+        	glVertex2f(enemie.x+30,enemie.y+30);
+        	glVertex2f(enemie.x,enemie.y+30);
+  glEnd();
+}
+
+void enemyFollows(int i){
+
+  float vetorx = axisx - enemieVector[i].x;
+  float vetory = axisy - enemieVector[i].y;
+  int  norma = sqrt(vetorx*vetorx + vetory*vetory);
+  vetorx /= norma;
+  vetory /= norma;
+
+  enemieVector[i].x += vetorx*(1.89f);
+  enemieVector[i].y += vetory*(1.89f);
+}
+
 
 void desenhaCena(void){
     glClear(GL_COLOR_BUFFER_BIT);
@@ -44,8 +88,16 @@ void desenhaCena(void){
         glRotatef(atan2(trueMouseY-axisy,trueMouseX-axisx)*180/M_PI, 0, 0, 1);
 
         // Desenha o personagem principal
-        characterShape();
+        characterShape(&globalWidth,&globalHeight);
     glPopMatrix();
+        if(enemieCount < level){
+            randomPosition(&enemieX,&enemieY);
+            createEnemie();
+            enemieCount++;
+        }
+    for(int i=0;i<enemieCount;i++){
+      drawEnemie(enemieVector[i]);
+    }
 
     // Diz ao OpenGL para colocar o que desenhamos na tela
     glutSwapBuffers();
@@ -76,14 +128,11 @@ void redimensiona(int w, int h){
 }
 
 /*void redimensiona(int width, int height) {            //COM ASPECTRATIO IGUAL DO EXEMPLO
-
     globalWidth = width;
     globalHeight = height;
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0,LARGURA_DO_MUNDO, 0, ALTURA_DO_MUNDO, -1, 1);
-
     float razaoAspectoJanela = ((float)width)/height;
     float razaoAspectoMundo = ((float)LARGURA_DO_MUNDO)/ ALTURA_DO_MUNDO;
     // se a janela está menos larga do que o mundo (16:9)...
@@ -109,10 +158,13 @@ void redimensiona(int w, int h){
 void atualiza(int idx) {
     // O ângulo esperado pelas funções "cos" e "sin" da math.h devem
     // estar em radianos
+    for(int i=0;i<enemieCount;i++){
+      enemyFollows(i);
+    }
+
     GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
     x = axisx+ cos(orientacaoEmRadianos);
     y = axisy+ sin(orientacaoEmRadianos);
-
 
 /*    if(posicaoMouse.x<axisx || posicaoMouse.y>axisy){
       velocidadeAngular-=0.5;
@@ -124,7 +176,7 @@ void atualiza(int idx) {
     orientacaoEmGraus += velocidadeAngular;
 
     glutPostRedisplay();
-    glutTimerFunc(17, atualiza, 0);
+    glutTimerFunc(33, atualiza, 0);
 }
 
 // Callback de evento de teclado
@@ -179,7 +231,7 @@ int main(int argc, char **argv)
     glutInitWindowPosition(100, 100);
 
     // Abre a janela
-    glutCreateWindow("Triângulo em movimento e orientado");
+    glutCreateWindow("KILL THE WALKER'S!");
 
     // Registra callbacks para alguns eventos
     glutDisplayFunc(desenhaCena);
