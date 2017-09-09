@@ -5,16 +5,16 @@
 void movimenta(int cima, int baixo, int esquerda, int direita, float *x, float *y){
 
 	if(cima==1){
-	*y+=1;
+	*y+=3;
 	}
 	if(baixo==1){
-	 *y-=1;
+	 *y-=3;
 	}
 	if(esquerda==1){
-	 *x-=1;
+	 *x-=3;
 	}
  if(direita==1){
-	 *x+=1;
+	 *x+=3;
  }
 }
 
