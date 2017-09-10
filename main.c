@@ -12,6 +12,7 @@ int trueMouseX, trueMouseY;
 #define LARGURA_DO_MUNDO 800
 #define ALTURA_DO_MUNDO 600
 int colidiu =0;
+int enemieColidiu=0;
 int globalWidth=LARGURA_DO_MUNDO, globalHeight= ALTURA_DO_MUNDO;
 #define radianoParaGraus(radianos) (radianos * (180.0 / M_PI))
 #define grausParaRadianos(graus) ((graus * M_PI) / 180.0)
@@ -19,8 +20,9 @@ const int raioEnemy =10;
 const int raioPlayer=10;
 
 
-float axisx=0, axisy=0,enemyx=0, enemyy=0;
-int up=0,down=0,left=0,right=0, r,enemieX,enemieY,enemieCount=0,level=5;
+float axisx=0, axisy=0;
+int up=0,down=0,left=0,right=0,r,enemieX,enemieY,enemieCount=0,level=12;
+int clicou =0;
 
 struct ponto {
    int x, y;
@@ -33,15 +35,19 @@ struct Enemie{
 
 struct Enemie enemieVector[100];
 struct ponto posicaoMouse;
+struct ponto cliqueMouse;
+struct ponto tiro;
 
-void randomPosition(int* x, int* y){
-	r = (rand()%21-10);
-	*x = r;
-	r = (rand()%21-10);
-	*y = r;
+void clickMouse(int button, int estado, int m, int n){
+
+  if (button==GLUT_LEFT_BUTTON){
+    cliqueMouse.x=m;
+    cliqueMouse.y=globalHeight-n;
+    clicou=1;
+  }
 }
 
-void movimentoMouse(int x, int y) {     //callback do mouse
+void movimentoMouse(int x, int y) {     //callback do mouse       ELIMINAR FUNCAO CORRIGE MOUSE
     posicaoMouse.x = x;
     posicaoMouse.y = y;
 }
@@ -52,20 +58,66 @@ void createEnemie(){
 	enemieVector[enemieCount].y = r;
 }
 
-void colisao (int i) {
+int colisao (int i) {
   int distancia = sqrt(((axisx/2 - enemieVector[i].x/2) * (axisx/2 - enemieVector[i].x/2)) + ((axisy/2 - enemieVector[i].y/2) * (axisy/2 - enemieVector[i].y/2)));
+  if (axisx>=globalWidth){ //FAZER RETORNAR 1 PARA PODER TIRAR VIDA DO PLAYER
+    axisx-=30;
+  }
+  if(axisy>=globalHeight){
+    axisy-=30;
+  }
+  if (axisx<=0){
+    axisx+=30;
+  }
+  if(axisy<=0){
+    axisy+=30;
+  }
   if (distancia <= raioPlayer + raioEnemy){
-    colidiu= 1;
+        if(axisy>enemieVector[i].y){
+            axisy+=30;
+        }
+        else
+          axisy-=30;
+
+      if(axisx<enemieVector[i].x){
+        axisx-=30;
+    }
+    else
+      axisx+=30;
+
+      return 1;
   }
   else
-    colidiu = 0;
+      return 0;
 }
 
-void drawEnemie(struct Enemie enemie){
-	  glColor3f(0,1,0);
-  /*  glPushMatrix();
-    glTranslatef(enemyx, enemyy, 0);
-    glRotatef(atan2(axisy-(enemie.y+15),axisx-(enemie.x-15))*180/M_PI, 0, 0, 1);*/
+int colisaoEnemie (struct Enemie enemie, struct Enemie enemy) {
+  int distancia = sqrt(((enemie.x/2 - enemy.x/2) * (enemie.y/2 - enemy.x/2)) + ((enemie.y/2 - enemy.y/2) * (enemie.y/2 - enemy.y/2)));
+  if (distancia <= raioPlayer){
+    return 1;
+  }
+  else
+    return 0;
+}
+
+void drawEnemie(struct Enemie enemie,int i, int j){
+
+/*  if(enemieColidiu==1){
+    enemieColidiu=0;
+          if(enemieVector[j].y>enemieVector[i].y){
+              enemie.y+=50;
+          }
+          else
+              enemie.y-=50;
+
+        if(enemieVector[j].y<enemieVector[i].x){
+              enemie.x+=50;
+      }
+      else
+              enemie.x-=50;
+  }*/
+
+    glColor3f(0,1,0);
   	glBegin(GL_POLYGON);
         	glVertex2f(enemie.x-15,enemie.y+15);
           glColor3f(1,0,1);
@@ -73,8 +125,8 @@ void drawEnemie(struct Enemie enemie){
         	glVertex2f(enemie.x+15,enemie.y-15);
           glVertex2f(enemie.x+15,enemie.y+15);
   glEnd();
-  //glPopMatrix();
 }
+
 
 void enemyFollows(int i){
 
@@ -87,7 +139,6 @@ void enemyFollows(int i){
   enemieVector[i].x += vetorx*(1.89f);
   enemieVector[i].y += vetory*(1.89f);
 }
-
 
 void desenhaCena(void){
     glClear(GL_COLOR_BUFFER_BIT);
@@ -102,14 +153,22 @@ void desenhaCena(void){
 
         // Desenha o personagem principal
         characterShape(&colidiu);
-    glPopMatrix();
+        glPopMatrix();
+
         if(enemieCount < level){
             randomPosition(&enemieX,&enemieY);
+
             createEnemie();
             enemieCount++;
         }
     for(int i=0;i<enemieCount;i++){
-      drawEnemie(enemieVector[i]);
+      int j;
+      for(j=0;j<enemieCount;j++){
+        if(j!=i && colisaoEnemie(enemieVector[j],enemieVector[i])==1){
+          enemieColidiu=1;
+        }
+      }
+      drawEnemie(enemieVector[i],i,j);
     }
 
     // Diz ao OpenGL para colocar o que desenhamos na tela
@@ -142,15 +201,18 @@ void redimensiona(int w, int h){
 
 void atualiza(int idx) {
 
-GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
-
-  for(int i=0;i<enemieCount;i++){ //LOOP PARA CONFIGURAR OS INIMIGOS
-    colisao(i);
-    enemyFollows(i);
-    //enemyx = (enemieVector[i].x-15) + cos(orientacaoEmRadianos); //INIMIGO SE ORIENTANDO PELO JOGADOR
-    //enemyy = (enemieVector[i].y+15) + sin(orientacaoEmRadianos);
+  GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
+  if(clicou==1){
+      printf("\n\nAs coordenadas do clique sao: x=%d, y=%d",cliqueMouse.x,cliqueMouse.y);
+      clicou=0;
   }
+  for(int i=0;i<enemieCount;i++){ //LOOP PARA CONFIGURAR OS INIMIGOS
+    if(colisao(i)==1){
+      colidiu=1;
+    }
+    enemyFollows(i);
 
+  }
     x = axisx+ cos(orientacaoEmRadianos);
     y = axisy+ sin(orientacaoEmRadianos);
 
@@ -159,10 +221,8 @@ GLfloat orientacaoEmRadianos = grausParaRadianos(orientacaoEmGraus);
     glutPostRedisplay();
     glutTimerFunc(33, atualiza, 0);
 }
-
 // Callback de evento de teclado
-void teclado(unsigned char key, int x, int y)
-{
+void teclado(unsigned char key, int x, int y){
   switch(key){
     case 'W':
       key='w';
@@ -177,8 +237,7 @@ void teclado(unsigned char key, int x, int y)
       key='d';
       break;
   }
-    switch(key)
-    {
+    switch(key){
         // Tecla ESC
         case 27:
             exit(0);
@@ -217,8 +276,7 @@ void teclado(unsigned char key, int x, int y)
 }
 
 // Rotina principal
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
     // Configuração inicial da janela do GLUT
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -233,6 +291,7 @@ int main(int argc, char **argv)
     glutReshapeFunc(redimensiona);
     glutKeyboardFunc(teclado);
     glutPassiveMotionFunc(movimentoMouse);
+    glutMouseFunc(clickMouse);
     glutTimerFunc(0, atualiza, 0);
     inicializa();
 
