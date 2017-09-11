@@ -22,7 +22,7 @@ const int raioPlayer=10;
 
 float axisx=0, axisy=0;
 int up=0,down=0,left=0,right=0,r,enemieX,enemieY,enemieCount=0,level=12;
-int clicou =0;
+int clicou =0,parametroJ;
 
 struct ponto {
    int x, y;
@@ -45,6 +45,15 @@ void clickMouse(int button, int estado, int m, int n){
     cliqueMouse.y=globalHeight-n;
     clicou=1;
   }
+}
+
+void drawShot(){
+  glColor3f(1,0,0);
+      glVertex2f(0,-3);
+      glVertex2f(-3,0);
+      glVertex2f(0,3);
+      glVertex2f(3,0);
+  glEnd();
 }
 
 void movimentoMouse(int x, int y) {     //callback do mouse       ELIMINAR FUNCAO CORRIGE MOUSE
@@ -100,7 +109,7 @@ int colisaoEnemie (struct Enemie enemie, struct Enemie enemy) {
     return 0;
 }
 
-void drawEnemie(struct Enemie enemie,int i, int j){
+void drawEnemie(struct Enemie enemie){
 
 /*  if(enemieColidiu==1){
     enemieColidiu=0;
@@ -127,17 +136,21 @@ void drawEnemie(struct Enemie enemie,int i, int j){
   glEnd();
 }
 
-
 void enemyFollows(int i){
 
   float vetorx = axisx - enemieVector[i].x;
   float vetory = axisy - enemieVector[i].y;
+  float vetorx2 = enemieVector[parametroJ].x - enemieVector[i].x;
+  float vetory2 = enemieVector[parametroJ].y - enemieVector[i].y;
   int  norma = sqrt(vetorx*vetorx + vetory*vetory);
+  int  norma2 = sqrt(vetorx2*vetorx2 + vetory2*vetory2);
   vetorx /= norma;
   vetory /= norma;
+  vetorx2 /= norma2;
+  vetory2 /= norma2;
 
-  enemieVector[i].x += vetorx*(1.89f);
-  enemieVector[i].y += vetory*(1.89f);
+  enemieVector[i].x += (vetorx)*(1.89f)-(vetorx2);
+  enemieVector[i].y += (vetory)*(1.89f)-(vetory2);
 }
 
 void desenhaCena(void){
@@ -162,13 +175,7 @@ void desenhaCena(void){
             enemieCount++;
         }
     for(int i=0;i<enemieCount;i++){
-      int j;
-      for(j=0;j<enemieCount;j++){
-        if(j!=i && colisaoEnemie(enemieVector[j],enemieVector[i])==1){
-          enemieColidiu=1;
-        }
-      }
-      drawEnemie(enemieVector[i],i,j);
+      drawEnemie(enemieVector[i]);
     }
 
     // Diz ao OpenGL para colocar o que desenhamos na tela
@@ -209,6 +216,12 @@ void atualiza(int idx) {
   for(int i=0;i<enemieCount;i++){ //LOOP PARA CONFIGURAR OS INIMIGOS
     if(colisao(i)==1){
       colidiu=1;
+    }
+    for(parametroJ=0;parametroJ<enemieCount;parametroJ++){
+      if(parametroJ!=i && colisaoEnemie(enemieVector[parametroJ],enemieVector[i])==1){
+        enemieColidiu=1;
+        enemyFollows(i);
+      }
     }
     enemyFollows(i);
 
@@ -284,7 +297,7 @@ int main(int argc, char **argv){
     glutInitWindowPosition(100, 100);
 
     // Abre a janela
-    glutCreateWindow("KILL THE WALKER'S!");
+    glutCreateWindow("KILL THE WALKERS!");
 
     // Registra callbacks para alguns eventos
     glutDisplayFunc(desenhaCena);
