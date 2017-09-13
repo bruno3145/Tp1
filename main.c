@@ -24,6 +24,7 @@ int colidiu =0;
 int globalWidth=LARGURA_DO_MUNDO, globalHeight= ALTURA_DO_MUNDO;
 const int raioEnemy =10;
 const int raioPlayer=10;
+const int raioTiro=6;
 
 
 float axisx=0, axisy=0;
@@ -182,11 +183,33 @@ void movimentoMouse(int x, int y) {     //callback do mouse       ELIMINAR FUNCA
 }
 void createEnemy(){
     for(int i=0;i<1000;i++){
-  	r = globalWidth+(rand()%2300-1600);
+  	r = globalWidth+(rand()%3300-2600);
   	enemyVector[i].x = r;
-  	r = globalHeight+(rand()%2300-1600);
+  	r = globalHeight+(rand()%3300-2600);
   	enemyVector[i].y = r;
   }
+}
+
+
+int tiro_colisao (int i) {
+  int distancia = sqrt(((tiro.x/2 - enemyVector[i].x/2) * (tiro.x/2 - enemyVector[i].x/2)) + ((tiro.y/2 - enemyVector[i].y/2) * (tiro.y/2 - enemyVector[i].y/2)));
+  if (distancia <= raioTiro + raioEnemy){
+    if(tiro.y>enemyVector[i].y){
+        enemyVector[i].y-=30;
+    }
+    else
+      enemyVector[i].y+=30;
+
+    if(tiro.x<enemyVector[i].x){
+    enemyVector[i].x+=30;
+    }
+    else
+      enemyVector[i].x-=30;
+
+  return 1;
+}
+  else
+    return 0;
 }
 
 int colisao (int i) {
@@ -221,6 +244,7 @@ int colisao (int i) {
   else
       return 0;
 }
+
 void drawEnemy(){
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texturaEnemy);
@@ -333,7 +357,8 @@ void atualiza(int idx) {
       if(colisao(i)==1){          //colisao com o player
         colidiu=1;
       }
-      enemyFollows(i);
+      tiro_colisao(i);          //Verifica se o inimigo foi atingido por um tiro.
+      enemyFollows(i);         //Faz os inimigos seguirem o jogador.
 
     }
       x = axisx+ cos(orientacaoEmRadianos);
