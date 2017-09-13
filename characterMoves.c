@@ -1,20 +1,31 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <SOIL/SOIL.h>
 #include "characterMoves.h"
 
-void movimenta(int cima, int baixo, int esquerda, int direita, float *x, float *y){
+GLuint texturaCharacter;
+
+void loadCharacter() {
+  texturaCharacter = SOIL_load_OGL_texture("snow.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+  glEnable( GL_BLEND );
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  if (texturaCharacter == 0) {
+    printf("Erro carregando textura: '%s'\n", SOIL_last_result());
+  }
+}
+void movimenta(int cima, int baixo, int esquerda, int direita, float *x, float *y, float* v_Player){
 
 	if(cima==1){
-	*y+=8;
+	*y+=*v_Player;
 	}
 	if(baixo==1){
-	 *y-=8;
+	 *y-=*v_Player;
 	}
 	if(esquerda==1){
-	 *x-=8;
+	 *x-=*v_Player;
 	}
  if(direita==1){
-	 *x+=8;
+	 *x+=*v_Player;
  }
 }
 
@@ -25,26 +36,16 @@ void resetaMovimento(int *up, int *down, int *left, int *right){
 	*right=0;
 }
 void characterShape(int* colidou){
-	if(*colidou==1){
-		glBegin(GL_POLYGON);
-		glColor3f(0,0,0);
-				glVertex2f(0,-20);
-				glVertex2f(-20,0);
-				glVertex2f(0,20);
-				glColor3f(0,1,1);
-				glVertex2f(20,0);
-		glEnd();
-		*colidou = 0;
-	}
-	else
-	glBegin(GL_POLYGON);
-	glColor3f(1,1,1);
-			glVertex2f(0,-20);
-			glVertex2f(-20,0);
-			glVertex2f(0,20);
-			glColor3f(1,0,0);
-			glVertex2f(20,0);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texturaCharacter);
+	glBegin(GL_TRIANGLE_FAN);
+		glTexCoord2f(0, 0); glVertex3f(0,-20,0);
+		glTexCoord2f(1, 0); glVertex3f(-20,0,0);
+		glTexCoord2f(1, 1); glVertex3f(0,20,0);
+		glTexCoord2f(0, 1); glVertex3f(20,0,0);
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
 	}
 
 	void randomPosition(int* x, int* y){
