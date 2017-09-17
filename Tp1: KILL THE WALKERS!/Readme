@@ -1,0 +1,57 @@
+
+
+Link para o gameplay do jogo no YouTube: 
+https://www.youtube.com/watch?v=pxUy1Xdn49w&feature=youtu.be
+
+		Instruções para compilação: 
+
+Abra o terminal, navegue até o diretório em que o jogo se encontra
+digite "make run", o makefile fará o resto! ;)
+
+		Lista de implementação adicional:
+
+*Massas diferentes: Item desconhecido que o jogador coleta pode aumentar o tamanho dos inimigos, tornando-os mais perigosos.
+
+*Perda de Massa: Os inimigos perdem o buff de aumento de tamanho depois de um tempo.
+
+*Itens: O jogo possui nessa versão 3 itens coletáveis:
+1º - Tiro maximizado, que torna mais facil o trabalho de acertar os Walkers.
+2º - Tiro furadeira, que atravessa os inimigos. Fazendo com que seja possível matar mais de um a cada tiro.
+3º - Crescimento de inimigos, faz com que os inimigos cresçam ocupando maior espaço e dificultando a evasão do player.
+
+*Texturas: Todas as texturas do jogo foram feitas por edição dos desenvolvedores, a maioria foi feita a partir de um mashup de imagens disponíveis na internet.
+
+*Texturas animadas: Tanto o personagem principal (Rambo Snow) quanto os inimigos se viram para encarar seus respectivos alvos, caracterizando uma animação.
+
+*Criar os próprios desenhos: O background principal foi desenhado do 0 pelos desenvolvedores, o segundo background( horda cercando uma elipse) foi feita por um mashup de texturas editadas também pelos desenvolvedores.
+
+*"Inteligencia artificial": Os walkers, desde que nascem, sempre estão seguindo o jogador com objetivos nefastos.
+
+*Vida: O jogador tem apenas 3 vidas, ou seja, pode ser atacado pelos walkers ou tocar nas bordas apenas 3 vezes.
+
+*Pontuação: O jogo possui um sistema de contagem de pontos por walker morto.
+
+*Efeitos sonoros: O jogo possui musica de fundo e efeitos para: tiro, coleta de item, morte de walker e gameover.
+
+*Telas: KILL THE WALKERS possui todas as telas fundamentais de um jogo:
+Instruções, Créditos, Menu Principal e Highscore.
+
+*Manter razão de aspecto(???): As dimensoes do jogo no que tange ao player e aos inimigos se mantem proporcional ao tamanho da janela.(Questionável).
+
+		Implementação criativa: 
+
+O controle do jogo é misto, mouse e teclado.
+
+Há um item coletável que não age sobre o jogador e sim sobre os inimigos. Esse debuff (ou trojanbuff) é ruim para o jogador, mas ele não sabe quando irá aparecer. 
+
+Os inimigos perseguem o jogador como zumbis legitimos.(Vetores direcionais foram usados para essa implementação).
+
+Os inimigos se aproximam de todas as direções, e vem em waves, como nos classicos de Zombie-Survival.
+
+O jogo é ambientado em uma mega referência a uma cena épica da sétima temporada de game of thrones. O jogo conta com outras referências à série inclusive na tela de game over, e o melhor: NÃO CONTÉM SPOILERS o que é um milagre nos dias de hoje, penso que só isso já deveria valer 250% da pontuação ;)
+
+
+
+
+Obs: Desculpe-nos pela bagunça no código, na revisão final tentamos organizar o maximo possivel. Mas já estamos meio atrasados pois achamos que valeria a pena atrasar 2 dias para apresentar um trabalho final do jeito que gostariamos.
+
